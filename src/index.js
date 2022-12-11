@@ -50,9 +50,8 @@ async function fetchImages(name) {
   }
   const url = getApiRecord(parsedName);
   try {
-    const response = await fetch(url);
-    const images = await response.json();
-    console.log(images);
+    const response = await axios.get(url);
+    const images = await response.data;
     return images;
   } catch (error) {
     if (!response.ok) {
@@ -70,6 +69,7 @@ form.addEventListener('submit', event => {
   fetchImages(searchValue)
     .then(images => {
       if (images.totalHits === 0) {
+        clearHtml();
         moreBtn.style.display = 'none';
         return Notiflix.Notify.info(
           'Sorry! We could not find any images that name.'
@@ -99,20 +99,3 @@ moreBtn.addEventListener('click', event => {
     })
     .catch(error => console.log(error));
 });
-
-// axios.get('/users').then(res => {
-//   console.log(res.data);
-// });
-// const fetchImages = name => {
-//   const parsedName = name.trim();
-//   //   const reg = new RegExp('^[a-zA-Z s]*$');
-//   //   const test = reg.test(parsedName);
-//   //   console.log(test);
-//   if (parsedName.length === 0) {
-//     clearHtml();
-//     return Notiflix.Notify.info('Enter any character!');
-//   }
-//   //   if (test !== true) {
-//   //     clearHtml();
-//   //     return Notiflix.Notify.info('You have to use a letters and space only!');
-//   //   }
