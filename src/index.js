@@ -3,23 +3,14 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+const axios = require('axios');
 const form = document.querySelector('#search-form');
 const input = document.querySelector('#search-form input');
 const gallery = document.querySelector('.gallery');
-const searchBtn = document.querySelector('#search-form button');
 const moreBtn = document.querySelector('.load-more');
 let page = 1;
 let limit = 40;
 const totalPages = 500 / limit;
-const searchParams = new URLSearchParams({
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  page: page,
-  per_page: limit,
-});
-const getApiRecord = name =>
-  `https://pixabay.com/api/?key=31935843-a63100f17f055f7a8dc315776&q=${name}&${searchParams}`;
 
 const clearHtml = () => {
   gallery.innerHTML = '';
@@ -41,49 +32,70 @@ function renderImages({ total, totalHits, hits }) {
   clearHtml();
   gallery.insertAdjacentHTML('beforeend', markup);
 }
-function fetchImages(name) {
+
+async function fetchImages(name) {
+  const searchParams = new URLSearchParams({
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    page: page,
+    per_page: limit,
+  });
+  const getApiRecord = name =>
+    `https://pixabay.com/api/?key=31935843-a63100f17f055f7a8dc315776&q=${name}&${searchParams}`;
   const parsedName = name.trim();
+  if (parsedName.length === 0) {
+    clearHtml();
+    return Notiflix.Notify.info('Enter any character!');
+  }
   const url = getApiRecord(parsedName);
-  return fetch(url).then(response => {
+  try {
+    const response = await fetch(url);
+    const images = await response.json();
+    console.log(images);
+    return images;
+  } catch (error) {
     if (!response.ok) {
       moreBtn.style.display = 'none';
       clearHtml();
       throw new Error('We find nothing that name!');
     }
-    return response.json();
-  });
+  }
 }
 
 form.addEventListener('submit', event => {
   event.preventDefault();
   const searchValue = input.value;
-  if (page > totalPages) {
-    return Notiflix.Notify.info('We have no more image for you!');
-  }
+  page = 1;
   fetchImages(searchValue)
     .then(images => {
+      if (images.totalHits === 0) {
+        moreBtn.style.display = 'none';
+        return Notiflix.Notify.info(
+          'Sorry! We could not find any images that name.'
+        );
+      }
       renderImages(images);
       moreBtn.style.display = 'inline';
+      return Notiflix.Notify.info(
+        `Hooray! We found ${images.totalHits} images.`
+      );
     })
     .catch(error => console.log(error));
 });
 moreBtn.addEventListener('click', event => {
   event.preventDefault();
   const searchValue = input.value;
-  console.log(searchValue);
+  page += 1;
   if (page > totalPages) {
+    moreBtn.style.display = 'none';
     return Notiflix.Notify.info(
       'We are sorry, but you have reached the end of search results.'
     );
   }
   fetchImages(searchValue)
     .then(images => {
-      if (page > 1) {
-        moreBtn.textContent = 'Load more images';
-      }
-      page = +1;
       renderImages(images);
-      //clearHtml();
     })
     .catch(error => console.log(error));
 });
@@ -104,33 +116,3 @@ moreBtn.addEventListener('click', event => {
 //   //     clearHtml();
 //   //     return Notiflix.Notify.info('You have to use a letters and space only!');
 //   //   }
-//   const url = getApiRecord(parsedName);
-//   return fetch(url)
-//     .then(res => {
-//       if (!res.ok) {
-//         clearHtml();
-//         throw new Error('We find nothing that name!');
-//       }
-//       return res.json();
-//     })
-//     .then(images => {
-//       // if (countries.length > 10)
-//       //   return Notiflix.Notify.info(
-//       //     'Too many matches found. Please enter a more specific name.'
-//       //   );
-//       // if (countries.length === 1) return countryCard(countries[0]);
-//       page += 1;
-//       if (page > 1) {
-//         moreBtn.textContent = 'Load more images';
-//       }
-//       return imageList(images);
-//     })
-//     .catch(error => {
-//       console.error(error);
-//       Notiflix.Notify.failure(error.message, 'error');
-//     });
-// };
-//fetchImages('yellow blossom');
-// input.addEventListener('input', event => {
-//   fetchImages(event.target.value);
-// });
