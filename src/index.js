@@ -16,18 +16,29 @@ const clearHtml = () => {
   gallery.innerHTML = '';
 };
 moreBtn.style.display = 'none';
+
 function renderImages({ total, totalHits, hits }) {
   const markup = hits
-    .map(({ webformatURL, tags, likes, views, comments, downloads }) => {
-      return `<div class='photo-card'>
-          <img src='${webformatURL}' alt='${tags}' loading='lazy' />
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `<div class='photo-card'><a class='gallery-item' href='${largeImageURL}'>
+          <img src='${webformatURL}' alt='${tags}' title='${tags}' loading='lazy' /></a>
   <div class='info'>
    <p class='info-item'><b>Likes:</b> ${likes}</p>
    <p class='info-item'><b>Views:</b> ${views}</p>
    <p class='info-item'><b>Comments:</b> ${comments}</p>
    <p class='info-item'><b>Downloads:</b> ${downloads}</p> </div>
         </div>`;
-    })
+      }
+    )
     .join('');
   clearHtml();
   gallery.insertAdjacentHTML('beforeend', markup);
@@ -71,7 +82,7 @@ form.addEventListener('submit', event => {
       if (images.totalHits === 0) {
         clearHtml();
         moreBtn.style.display = 'none';
-        return Notiflix.Notify.info(
+        return Notiflix.Notify.failure(
           'Sorry! We could not find any images that name.'
         );
       }
@@ -81,6 +92,7 @@ form.addEventListener('submit', event => {
         `Hooray! We found ${images.totalHits} images.`
       );
     })
+    .then(data => lightboxGallery())
     .catch(error => console.log(error));
 });
 moreBtn.addEventListener('click', event => {
@@ -89,7 +101,7 @@ moreBtn.addEventListener('click', event => {
   page += 1;
   if (page > totalPages) {
     moreBtn.style.display = 'none';
-    return Notiflix.Notify.info(
+    return Notiflix.Notify.failure(
       'We are sorry, but you have reached the end of search results.'
     );
   }
@@ -97,5 +109,17 @@ moreBtn.addEventListener('click', event => {
     .then(images => {
       renderImages(images);
     })
+    .then(data => lightboxGallery())
     .catch(error => console.log(error));
 });
+const lightboxGallery = () => {
+  new SimpleLightbox('.gallery a');
+  lightboxGallery.on('show.simplelightbox', function (event) {
+    event.preventDefault();
+    const selectedImage = event.target;
+    if (selectedImage.nodeName !== 'IMG') {
+      return;
+    }
+    lightboxGallery.refresh();
+  });
+};
