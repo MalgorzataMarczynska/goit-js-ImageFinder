@@ -61,7 +61,7 @@ async function fetchImages(name) {
   }
   const url = getApiRecord(parsedName);
   try {
-    const response = await axios.get(url);
+    const response = await axios(url);
     const images = await response.data;
     return images;
   } catch (error) {
