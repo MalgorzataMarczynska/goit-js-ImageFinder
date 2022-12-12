@@ -83,7 +83,7 @@ form.addEventListener('submit', event => {
         clearHtml();
         moreBtn.style.display = 'none';
         return Notiflix.Notify.failure(
-          'Sorry! We could not find any images that name.'
+          'Sorry, there are no images matching your search query. Please try again.'
         );
       }
       renderImages(images);
@@ -92,7 +92,10 @@ form.addEventListener('submit', event => {
         `Hooray! We found ${images.totalHits} images.`
       );
     })
-    .then(data => lightboxGallery())
+    .then(data => {
+      smoothScrolling();
+      lightboxGallery();
+    })
     .catch(error => console.log(error));
 });
 moreBtn.addEventListener('click', event => {
@@ -109,10 +112,13 @@ moreBtn.addEventListener('click', event => {
     .then(images => {
       renderImages(images);
     })
-    .then(data => lightboxGallery())
+    .then(data => {
+      smoothScrolling();
+      lightboxGallery();
+    })
     .catch(error => console.log(error));
 });
-const lightboxGallery = () => {
+function lightboxGallery() {
   new SimpleLightbox('.gallery a');
   lightboxGallery.on('show.simplelightbox', function (event) {
     event.preventDefault();
@@ -121,13 +127,16 @@ const lightboxGallery = () => {
       return;
     }
     lightboxGallery.refresh();
+    return;
   });
-};
-const { height: cardHeight } = document
-  .querySelector('.gallery')
-  .firstElementChild.getBoundingClientRect();
+}
+function smoothScrolling() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
 
-window.scrollBy({
-  top: cardHeight * 2,
-  behavior: 'smooth',
-});
+  window.scrollBy({
+    top: cardHeight * 5,
+    behavior: 'smooth',
+  });
+}
