@@ -4,6 +4,8 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 const axios = require('axios');
+import InfiniteAjaxScroll from '@webcreate/infinite-ajax-scroll';
+
 const form = document.querySelector('#search-form');
 const input = document.querySelector('#search-form input');
 const gallery = document.querySelector('.gallery');
@@ -93,7 +95,7 @@ form.addEventListener('submit', event => {
       );
     })
     .then(data => {
-      smoothScrolling();
+      //smoothScrolling();
       lightboxGallery();
     })
     .catch(error => console.log(error));
@@ -113,7 +115,7 @@ moreBtn.addEventListener('click', event => {
       renderImages(images);
     })
     .then(data => {
-      smoothScrolling();
+      //smoothScrolling();
       lightboxGallery();
     })
     .catch(error => console.log(error));
@@ -130,13 +132,61 @@ function lightboxGallery() {
     return;
   });
 }
-function smoothScrolling() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
+// function smoothScrolling() {
+//   const { height: cardHeight } = document
+//     .querySelector('.gallery')
+//     .firstElementChild.getBoundingClientRect();
 
+//   window.scrollBy({
+//     top: cardHeight * 5,
+//     behavior: 'smooth',
+//   });
+// }
+document.addEventListener('click', () => {
   window.scrollBy({
-    top: cardHeight * 5,
+    top: 1850,
     behavior: 'smooth',
   });
-}
+});
+
+// function infiniteScroll() {
+//   let ias = new InfiniteAjaxScroll('.gallery', {
+//     item: '.photo-card',
+//     next: [(pageIndex = +1)],
+//     //pagination: '.load-more',
+//     scrollContainer: window,
+//     loadOnScroll: true,
+//   });
+//   ias.on('scrolled', function (event) {
+//     window.scrollY + window.innerHeight >=
+//       document.documentElement.scrollHeight;
+//   });
+// }
+const handleInfiniteScroll = () => {
+  if (
+    window.scrollY + window.innerHeight >=
+    document.documentElement.scrollHeight
+  ) {
+    const searchValue = input.value;
+    page += 1;
+    if (page > totalPages) {
+      moreBtn.style.display = 'none';
+      removeInfiniteScroll();
+      return Notiflix.Notify.failure(
+        'We are sorry, but you have reached the end of search results.'
+      );
+    }
+    fetchImages(searchValue)
+      .then(images => {
+        renderImages(images);
+      })
+      .then(data => {
+        lightboxGallery();
+      })
+      .catch(error => console.log(error));
+  }
+};
+const removeInfiniteScroll = () => {
+  window.removeEventListener('scroll', handleInfiniteScroll);
+};
+window.addEventListener('scroll', handleInfiniteScroll);
