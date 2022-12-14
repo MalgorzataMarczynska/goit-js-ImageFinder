@@ -4,7 +4,7 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 const axios = require('axios');
-import InfiniteAjaxScroll from '@webcreate/infinite-ajax-scroll';
+const throttle = require('lodash.throttle');
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('#search-form input');
@@ -12,7 +12,7 @@ const gallery = document.querySelector('.gallery');
 const moreBtn = document.querySelector('.load-more');
 let page = 1;
 let limit = 40;
-const totalPages = 500 / limit;
+const totalPages = Math.ceil(500 / limit);
 
 const clearHtml = () => {
   gallery.innerHTML = '';
@@ -42,7 +42,6 @@ function renderImages({ total, totalHits, hits }) {
       }
     )
     .join('');
-  clearHtml();
   gallery.insertAdjacentHTML('beforeend', markup);
 }
 
@@ -68,7 +67,7 @@ async function fetchImages(name) {
     return images;
   } catch (error) {
     if (!response.ok) {
-      moreBtn.style.display = 'none';
+      //moreBtn.style.display = 'none';
       clearHtml();
       throw new Error('We find nothing that name!');
     }
@@ -79,6 +78,7 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   const searchValue = input.value;
   page = 1;
+  clearHtml();
   fetchImages(searchValue)
     .then(images => {
       if (images.totalHits === 0) {
@@ -89,17 +89,17 @@ form.addEventListener('submit', event => {
         );
       }
       renderImages(images);
-      moreBtn.style.display = 'inline';
+      //moreBtn.style.display = 'inline';
       return Notiflix.Notify.info(
         `Hooray! We found ${images.totalHits} images.`
       );
     })
     .then(data => {
-      //smoothScrolling();
       lightboxGallery();
     })
     .catch(error => console.log(error));
 });
+//Load more button
 moreBtn.addEventListener('click', event => {
   event.preventDefault();
   const searchValue = input.value;
@@ -115,7 +115,6 @@ moreBtn.addEventListener('click', event => {
       renderImages(images);
     })
     .then(data => {
-      //smoothScrolling();
       lightboxGallery();
     })
     .catch(error => console.log(error));
@@ -132,36 +131,14 @@ function lightboxGallery() {
     return;
   });
 }
-// function smoothScrolling() {
-//   const { height: cardHeight } = document
-//     .querySelector('.gallery')
-//     .firstElementChild.getBoundingClientRect();
-
-//   window.scrollBy({
-//     top: cardHeight * 5,
-//     behavior: 'smooth',
-//   });
-// }
-document.addEventListener('click', () => {
+//smooth scrolling option
+document.addEventListener('scroll', () => {
   window.scrollBy({
-    top: 1850,
+    top: 2775,
     behavior: 'smooth',
   });
 });
 
-// function infiniteScroll() {
-//   let ias = new InfiniteAjaxScroll('.gallery', {
-//     item: '.photo-card',
-//     next: [(pageIndex = +1)],
-//     //pagination: '.load-more',
-//     scrollContainer: window,
-//     loadOnScroll: true,
-//   });
-//   ias.on('scrolled', function (event) {
-//     window.scrollY + window.innerHeight >=
-//       document.documentElement.scrollHeight;
-//   });
-// }
 const handleInfiniteScroll = () => {
   if (
     window.scrollY + window.innerHeight >=
@@ -170,7 +147,7 @@ const handleInfiniteScroll = () => {
     const searchValue = input.value;
     page += 1;
     if (page > totalPages) {
-      moreBtn.style.display = 'none';
+      //moreBtn.style.display = 'none';
       removeInfiniteScroll();
       return Notiflix.Notify.failure(
         'We are sorry, but you have reached the end of search results.'
@@ -189,4 +166,29 @@ const handleInfiniteScroll = () => {
 const removeInfiniteScroll = () => {
   window.removeEventListener('scroll', handleInfiniteScroll);
 };
-window.addEventListener('scroll', handleInfiniteScroll);
+window.addEventListener('scroll', throttle(handleInfiniteScroll, 1000));
+// function loadImages(numImages) {
+//   let i = 0;
+//   while (i < numImages) {
+//     const searchValue = input.value;
+//     page = [i];
+//     fetchImages(searchValue)
+//       .then(images => {
+//         renderImages(images);
+//       })
+//       .then(data => {
+//         lightboxGallery();
+//       })
+//       .catch(error => console.log(error));
+//     i++;
+//   }
+// }
+
+// window.addEventListener('scroll', () => {
+//   if (
+//     window.scrollY + window.innerHeight >=
+//     document.documentElement.scrollHeight
+//   ) {
+//     throttle(loadImages(totalPages), 1000);
+//   }
+// });
