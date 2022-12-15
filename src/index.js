@@ -3,7 +3,6 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-const axios = require('axios');
 const throttle = require('lodash.throttle');
 
 const form = document.querySelector('#search-form');
@@ -81,7 +80,6 @@ form.addEventListener('submit', event => {
   clearHtml();
   fetchImages(searchValue)
     .then(images => {
-      console.log(images);
       if (images.total === 0) {
         clearHtml();
         moreBtn.style.display = 'none';
