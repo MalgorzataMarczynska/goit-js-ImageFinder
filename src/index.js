@@ -137,12 +137,12 @@ moreBtn.addEventListener('click', event => {
 // });
 
 //smooth scrolling option
-document.addEventListener('scroll', () => {
-  window.scrollBy({
-    top: 2775,
-    behavior: 'smooth',
-  });
-});
+// document.addEventListener('scroll', () => {
+//   window.scrollBy({
+//     top: 2775,
+//     behavior: 'smooth',
+//   });
+// });
 
 const handleInfiniteScroll = () => {
   if (
