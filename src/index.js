@@ -81,7 +81,8 @@ form.addEventListener('submit', event => {
   clearHtml();
   fetchImages(searchValue)
     .then(images => {
-      if (images.totalHits === 0) {
+      console.log(images);
+      if (images.total === 0) {
         clearHtml();
         moreBtn.style.display = 'none';
         return Notiflix.Notify.failure(
