@@ -55,9 +55,9 @@ li {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  max-width: 23vw;
+  max-width: 15em;
   margin: 0.4em;
-  max-height: 30vh;
+  max-height: 30em;
   background-color: whitesmoke;
   box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
     0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
@@ -87,7 +87,7 @@ li {
 .info-item {
   display: block;
   text-align: center;
-  font-size: 0.91em;
+  font-size: 0.85em;
 }
 .modal {
   padding: 1rem;
