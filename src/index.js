@@ -94,7 +94,15 @@ form.addEventListener('submit', event => {
       );
     })
     .then(data => {
-      lightboxGallery();
+      const lightboxGallery = new SimpleLightbox('.gallery a');
+      lightboxGallery.on('show.simplelightbox', function (event) {
+        event.preventDefault();
+        const selectedImage = event.target;
+        if (selectedImage.nodeName !== 'IMG') {
+          return;
+        }
+        lightboxGallery.refresh();
+      });
     })
     .catch(error => console.log(error));
 });
@@ -118,18 +126,16 @@ moreBtn.addEventListener('click', event => {
     })
     .catch(error => console.log(error));
 });
-function lightboxGallery() {
-  new SimpleLightbox('.gallery a');
-  lightboxGallery.on('show.simplelightbox', function (event) {
-    event.preventDefault();
-    const selectedImage = event.target;
-    if (selectedImage.nodeName !== 'IMG') {
-      return;
-    }
-    lightboxGallery.refresh();
-    return;
-  });
-}
+// const lightboxGallery = new SimpleLightbox('.gallery a');
+// lightboxGallery.on('show.simplelightbox', function (event) {
+//   event.preventDefault();
+//   const selectedImage = event.target;
+//   if (selectedImage.nodeName !== 'IMG') {
+//     return;
+//   }
+//   lightboxGallery.refresh();
+// });
+
 //smooth scrolling option
 document.addEventListener('scroll', () => {
   window.scrollBy({
@@ -157,7 +163,15 @@ const handleInfiniteScroll = () => {
         renderImages(images);
       })
       .then(data => {
-        lightboxGallery();
+        const lightboxGallery = new SimpleLightbox('.gallery a');
+        lightboxGallery.on('show.simplelightbox', function (event) {
+          event.preventDefault();
+          const selectedImage = event.target;
+          if (selectedImage.nodeName !== 'IMG') {
+            return;
+          }
+          lightboxGallery.refresh();
+        });
       })
       .catch(error => console.log(error));
   }
