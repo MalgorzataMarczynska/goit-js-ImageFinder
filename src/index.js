@@ -66,7 +66,7 @@ async function fetchImages(name) {
     const images = await response.data;
     return images;
   } catch (error) {
-    if (!response.ok) {
+    if (error.response) {
       //moreBtn.style.display = 'none';
       clearHtml();
       throw new Error('We find nothing that name!');
