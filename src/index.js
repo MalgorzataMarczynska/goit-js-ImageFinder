@@ -43,6 +43,7 @@ function renderImages({ total, totalHits, hits }) {
     )
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
+  //gallery.insertAdjacentHTML('afterbegin', markup);
 }
 
 async function fetchImages(name) {
@@ -61,6 +62,7 @@ async function fetchImages(name) {
     return Notiflix.Notify.info('Enter any character!');
   }
   const url = getApiRecord(parsedName);
+
   try {
     const response = await axios(url);
     const images = await response.data;
@@ -89,6 +91,7 @@ form.addEventListener('submit', event => {
         );
       }
       renderImages(images);
+      moreBtn.style.display = 'inline';
       return Notiflix.Notify.info(
         `Hooray! We found ${images.totalHits} images.`
       );
@@ -108,11 +111,11 @@ form.addEventListener('submit', event => {
 });
 //Load more button
 moreBtn.addEventListener('click', event => {
+  //window.removeEventListener('scroll', handleInfiniteScroll);
   event.preventDefault();
   const searchValue = input.value;
   clearHtml();
   page += 1;
-  window.removeEventListener('scroll', handleInfiniteScroll);
   if (page > totalPages) {
     moreBtn.style.display = 'none';
     return Notiflix.Notify.failure(
@@ -124,7 +127,15 @@ moreBtn.addEventListener('click', event => {
       renderImages(images);
     })
     .then(data => {
-      lightboxGallery();
+      const lightboxGallery = new SimpleLightbox('.gallery a');
+      lightboxGallery.on('show.simplelightbox', function (event) {
+        event.preventDefault();
+        const selectedImage = event.target;
+        if (selectedImage.nodeName !== 'IMG') {
+          return;
+        }
+        lightboxGallery.refresh();
+      });
     })
     .catch(error => console.log(error));
 });
@@ -137,7 +148,7 @@ moreBtn.addEventListener('click', event => {
 //   });
 // });
 
-const handleInfiniteScroll = () => {
+function handleInfiniteScroll() {
   if (
     window.scrollY + window.innerHeight >=
     document.documentElement.scrollHeight
@@ -167,13 +178,30 @@ const handleInfiniteScroll = () => {
       })
       .catch(error => console.log(error));
   }
-};
-const removeInfiniteScroll = () => {
+}
+function removeInfiniteScroll() {
   window.removeEventListener('scroll', throttle(handleInfiniteScroll, 1000));
-};
-window.addEventListener('scroll', throttle(handleInfiniteScroll, 1000));
+}
 
 changeBtn.addEventListener('click', () => {
-  window.removeEventListener('scroll', handleInfiniteScroll);
-  moreBtn.style.display = 'inline';
+  changeBtn.classList.toggle('is-active');
+  const isActive = changeBtn.classList.contains('is-active');
+  if (isActive === true) {
+    moreBtn.style.display = 'none';
+    changeBtn.textContent = 'Switch to load per page';
+    window.addEventListener(
+      'scroll',
+      throttle(handleInfiniteScroll, 1000),
+      true
+    );
+  }
+  if (isActive === false) {
+    changeBtn.textContent = 'Switch to infinite scroll';
+    moreBtn.style.display = 'inline';
+    window.removeEventListener(
+      'scroll',
+      throttle(handleInfiniteScroll, 1000),
+      true
+    );
+  }
 });
