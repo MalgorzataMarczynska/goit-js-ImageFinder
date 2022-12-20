@@ -26,6 +26,9 @@ li {
   list-style: none;
 }
 .search-form {
+  position: fixed;
+  top: 0em;
+  z-index: 4;
   background-color: rgb(8, 20, 134);
   display: flex;
   justify-content: center;
@@ -50,6 +53,7 @@ li {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 5em;
 }
 .photo-card {
   display: flex;
@@ -98,15 +102,13 @@ li {
   background-color: rgb(8, 20, 134);
   color: white;
   border: 0px;
-  margin-left: 66em;
+  transform: translateX(45vw);
   padding: 1em 1.5em;
-  transition: transform 500ms 250ms cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 500ms 250ms cubic-bezier(0.4, 0, 0.2, 1),
+  transition: background-color 500ms 250ms cubic-bezier(0.4, 0, 0.2, 1),
     color 500ms 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .load-more:hover,
 .load-more:hover {
-  transform: translate(5%);
   background-color: rgb(141, 165, 231);
   color: rgb(4, 45, 83);
 }

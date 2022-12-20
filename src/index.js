@@ -111,10 +111,9 @@ form.addEventListener('submit', event => {
 });
 //Load more button
 moreBtn.addEventListener('click', event => {
-  //window.removeEventListener('scroll', handleInfiniteScroll);
   event.preventDefault();
   const searchValue = input.value;
-  clearHtml();
+  //clearHtml();
   page += 1;
   if (page > totalPages) {
     moreBtn.style.display = 'none';
@@ -127,6 +126,12 @@ moreBtn.addEventListener('click', event => {
       renderImages(images);
     })
     .then(data => {
+      const height = window.innerHeight;
+      window.scrollBy({
+        top: height * 0.5,
+        behavior: 'smooth',
+      });
+
       const lightboxGallery = new SimpleLightbox('.gallery a');
       lightboxGallery.on('show.simplelightbox', function (event) {
         event.preventDefault();
@@ -139,14 +144,6 @@ moreBtn.addEventListener('click', event => {
     })
     .catch(error => console.log(error));
 });
-
-//smooth scrolling option
-// document.addEventListener('scroll', () => {
-//   window.scrollBy({
-//     top: 2775,
-//     behavior: 'smooth',
-//   });
-// });
 
 function handleInfiniteScroll() {
   if (
@@ -182,26 +179,18 @@ function handleInfiniteScroll() {
 function removeInfiniteScroll() {
   window.removeEventListener('scroll', throttle(handleInfiniteScroll, 1000));
 }
-
+const throttledFetch = throttle(handleInfiniteScroll, 1000);
 changeBtn.addEventListener('click', () => {
   changeBtn.classList.toggle('is-active');
   const isActive = changeBtn.classList.contains('is-active');
   if (isActive === true) {
     moreBtn.style.display = 'none';
     changeBtn.textContent = 'Switch to load per page';
-    window.addEventListener(
-      'scroll',
-      throttle(handleInfiniteScroll, 1000),
-      true
-    );
+    window.addEventListener('scroll', throttledFetch, true);
   }
   if (isActive === false) {
     changeBtn.textContent = 'Switch to infinite scroll';
     moreBtn.style.display = 'inline';
-    window.removeEventListener(
-      'scroll',
-      throttle(handleInfiniteScroll, 1000),
-      true
-    );
+    window.removeEventListener('scroll', throttledFetch, true);
   }
 });
