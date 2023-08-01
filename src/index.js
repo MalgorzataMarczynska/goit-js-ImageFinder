@@ -3,7 +3,7 @@ import axios from 'axios';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-const throttle = require('lodash.throttle');
+import throttle from 'lodash.throttle';
 
 const form = document.querySelector('#search-form');
 const input = document.querySelector('#search-form input');
@@ -17,6 +17,7 @@ const totalPages = Math.ceil(500 / limit);
 const clearHtml = () => {
   gallery.innerHTML = '';
 };
+
 moreBtn.style.display = 'none';
 
 function renderImages({ total, totalHits, hits }) {
@@ -43,7 +44,6 @@ function renderImages({ total, totalHits, hits }) {
     )
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
-  //gallery.insertAdjacentHTML('afterbegin', markup);
 }
 
 async function fetchImages(name) {
@@ -62,20 +62,28 @@ async function fetchImages(name) {
     return Notiflix.Notify.info('Enter any character!');
   }
   const url = getApiRecord(parsedName);
-
   try {
     const response = await axios(url);
     const images = await response.data;
     return images;
   } catch (error) {
     if (error.response) {
-      //moreBtn.style.display = 'none';
       clearHtml();
       throw new Error('We find nothing that name!');
     }
   }
 }
-
+const doingLightboxGallery = () => {
+  const lightboxGallery = new SimpleLightbox('.gallery a');
+  lightboxGallery.on('show.simplelightbox', function (event) {
+    event.preventDefault();
+    const selectedImage = event.target;
+    if (selectedImage.nodeName !== 'IMG') {
+      return;
+    }
+    lightboxGallery.refresh();
+  });
+};
 form.addEventListener('submit', event => {
   event.preventDefault();
   const searchValue = input.value;
@@ -97,15 +105,7 @@ form.addEventListener('submit', event => {
       );
     })
     .then(data => {
-      const lightboxGallery = new SimpleLightbox('.gallery a');
-      lightboxGallery.on('show.simplelightbox', function (event) {
-        event.preventDefault();
-        const selectedImage = event.target;
-        if (selectedImage.nodeName !== 'IMG') {
-          return;
-        }
-        lightboxGallery.refresh();
-      });
+      doingLightboxGallery();
     })
     .catch(error => console.log(error));
 });
@@ -113,7 +113,6 @@ form.addEventListener('submit', event => {
 moreBtn.addEventListener('click', event => {
   event.preventDefault();
   const searchValue = input.value;
-  //clearHtml();
   page += 1;
   if (page > totalPages) {
     moreBtn.style.display = 'none';
@@ -131,16 +130,7 @@ moreBtn.addEventListener('click', event => {
         top: height * 0.5,
         behavior: 'smooth',
       });
-
-      const lightboxGallery = new SimpleLightbox('.gallery a');
-      lightboxGallery.on('show.simplelightbox', function (event) {
-        event.preventDefault();
-        const selectedImage = event.target;
-        if (selectedImage.nodeName !== 'IMG') {
-          return;
-        }
-        lightboxGallery.refresh();
-      });
+      doingLightboxGallery();
     })
     .catch(error => console.log(error));
 });
@@ -163,22 +153,16 @@ function handleInfiniteScroll() {
         renderImages(images);
       })
       .then(data => {
-        const lightboxGallery = new SimpleLightbox('.gallery a');
-        lightboxGallery.on('show.simplelightbox', function (event) {
-          event.preventDefault();
-          const selectedImage = event.target;
-          if (selectedImage.nodeName !== 'IMG') {
-            return;
-          }
-          lightboxGallery.refresh();
-        });
+        doingLightboxGallery();
       })
       .catch(error => console.log(error));
   }
 }
+
 function removeInfiniteScroll() {
   window.removeEventListener('scroll', throttle(handleInfiniteScroll, 1000));
 }
+
 const throttledFetch = throttle(handleInfiniteScroll, 1000);
 changeBtn.addEventListener('click', () => {
   changeBtn.classList.toggle('is-active');
