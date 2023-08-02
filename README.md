@@ -1,4 +1,4 @@
-# Create a frontend for a keyword search and image browsing application using VanillaJS, SimpleLightBox library and Axios. Infinite scroll feature include.
+# A frontend for a keyword search and image browsing application based on VanillaJS, SimpleLightBox library and Axios. Infinite scroll feature include.
 
 # Parcel template
 
